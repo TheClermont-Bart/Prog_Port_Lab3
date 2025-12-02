@@ -2,7 +2,8 @@
 <resources>
     <declare-styleable name="CustomView">
     <attr name="color" format="color" />
-    <attr name="time" format="float" />
     <attr name="size" format="dimension" />
+    <attr name="side" format="integer" />
+    <attr name="startAngle" format="float" />
     </declare-styleable>
 </resources>

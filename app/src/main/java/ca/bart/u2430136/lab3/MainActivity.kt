@@ -14,10 +14,12 @@ class MainActivity : Activity() {
 
         const val TAG = "MainActivity"
 
-        const val FRAME_RATE = 60
+        const val FRAME_RATE = 100
         const val SEC_PER_FRAME = 1f / FRAME_RATE
         const val MS_PER_FRAME = (1000 * SEC_PER_FRAME).toLong()
         const val NS_PER_FRAME = (1000000000 * SEC_PER_FRAME).toLong()
+
+        const val ROTATION_SPEED_DEG_PER_SEC = 30f
     }
 
 

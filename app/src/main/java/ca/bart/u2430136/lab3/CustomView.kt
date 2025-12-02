@@ -21,7 +21,7 @@ class CustomView @JvmOverloads constructor(
     companion object {
 
         const val TAG = "CustomView"
-        const val REFERENCE_SIZE = 100f
+        var REFERENCE_SIZE = 0f
 
         val RED_LINE_PAINT = Paint()
 
@@ -32,11 +32,8 @@ class CustomView @JvmOverloads constructor(
         }
     }
 
-
-    var cx = 0f
-    var cy = 0f
     var radius = 0f
-    var scale = 1f
+    var scale = 5f
 
     private val paint = Paint()
 
@@ -58,19 +55,37 @@ class CustomView @JvmOverloads constructor(
 
     val inverseTransform = Matrix(Matrix.IDENTITY_MATRIX)
 
+    var rotationAngle = time * 30f
+
+    var side : Int = 0
+        get() = field
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var startAngle : Float = 0f
+        get() = field
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     init {
 
         val attributes = context.theme.obtainStyledAttributes(attrs, R.styleable.CustomView, defStyle, 0)
         try {
 
             paint.color = attributes.getColor(R.styleable.CustomView_color, Color.RED)
-            // paint.style = if (isInEditMode) Paint.Style.FILL else Paint.Style.STROKE
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 1f
+            paint.strokeWidth = 3f
 
-            time = attributes.getFloat(R.styleable.CustomView_time, 0f)
+            time = 3600f
 
-            //attributes.getDimensionPixelSize(R.styleable.CustomView_size, 0)
+            side = attributes.getInt(R.styleable.CustomView_side, 3)
+            if(side>7){side=7}
+            startAngle = attributes.getFloat(R.styleable.CustomView_startAngle, 0f)
+            REFERENCE_SIZE = attributes.getDimensionPixelSize(R.styleable.CustomView_size, 0).toFloat()
 
         } finally {
 
@@ -79,65 +94,13 @@ class CustomView @JvmOverloads constructor(
     }
 
     override fun onDraw(canvas: Canvas) {
+        val cx = width / 2f
+        val cy = height / 2f
 
         canvas.translate(cx, cy)
-        canvas.rotate(-90f)
+        canvas.rotate(rotationAngle + startAngle )
         canvas.scale(scale, scale)
-
-        canvas.getMatrix().invert(inverseTransform)
-
-        //debugDraw(canvas)
-        //canvas.drawLine(0f, 0f, REFERENCE_SIZE, 0f, paint)
-
-
-        canvas.save()
-        canvas.translate(ca.bart.u2430136.lab3.CustomView.Companion.REFERENCE_SIZE, 0f)
-        canvas.rotate(time * 360f)
-        drawPolygon(canvas, ca.bart.u2430136.lab3.CustomView.Companion.REFERENCE_SIZE / 2, 6)
-
-
-        canvas.restore()
-
-        canvas.save()
-
-        canvas.rotate(time / 3600f * 360f)
-        canvas.scale(1f, 2f)
-        canvas.drawLine(0f, 0f, ca.bart.u2430136.lab3.CustomView.Companion.REFERENCE_SIZE * 0.9f, 0f, paint)
-
-        canvas.restore()
-
-        canvas.save()
-
-        canvas.rotate(time / (12 * 60 * 60) * 360f)
-        canvas.scale(1f, 5f)
-        canvas.drawLine(0f, 0f, ca.bart.u2430136.lab3.CustomView.Companion.REFERENCE_SIZE * 0.7f, 0f, paint)
-
-        canvas.restore()
-
-        /*
-        canvas.translate(cx, cy)
-
-        debugDraw(canvas)
-
-        canvas.rotate(45f)
-
-        canvas.save()
-
-            canvas.scale(2f, 1f)
-
-            canvas.save()
-
-                canvas.translate(10f, 10f)
-
-            canvas.restore()
-        canvas.restore()
-
-        canvas.scale(-1f, 1f)
-
-        debugDraw(canvas)
-        */
-
-
+        drawPolygon(canvas, REFERENCE_SIZE, side)
     }
 
     private fun drawPolygon(canvas: Canvas, size:Float, sides:Int) {
@@ -155,26 +118,26 @@ class CustomView @JvmOverloads constructor(
             canvas.drawLine(0f, 0f, size, 0f, paint)
             canvas.restore()
 
+            if(sides>3){
+                canvas.save()
+                canvas.translate(size,0f)
+                canvas.rotate(rotationAngle + startAngle )
+                drawPolygon(canvas,size/2f,sides-1)
+                canvas.restore()
+            }
+
             canvas.rotate(centralAngle)
         }
-    }
-
-    fun updatePosition(x:Float, y:Float) {
-
-        val point = floatArrayOf(x, y)
-        inverseTransform.mapPoints(point)
-        val angle = atan2(point[1], point[0]) * 180 / PI.toFloat()
-
-        Log.d(ca.bart.u2430136.lab3.CustomView.Companion.TAG, "updatePosition(${point[0]}, ${point[1]})=$angle")
-
-        time = angle * (12 * 60 * 60) / 360f
     }
 
     fun update() {
 
         if (trackedId == -1) {
-
             time += MainActivity.SEC_PER_FRAME
+            rotationAngle += MainActivity.ROTATION_SPEED_DEG_PER_SEC * MainActivity.SEC_PER_FRAME
+            if (rotationAngle >= 360f) {
+                rotationAngle -= 360f
+            }
         }
     }
 

@@ -10,8 +10,11 @@
     <ca.bart.u2430136.lab3.CustomView
         android:id="@+id/triangle"
         android:layout_width="match_parent"
-        android:layout_height="600dp"
-        app:time="39600"
-        app:color="#ff00FF" />
+        android:layout_height="match_parent"
+        app:size="20dp"
+        app:side="8"
+        app:color="#ff0000"
+        app:startAngle="-90"
+        />
 
 </RelativeLayout>
